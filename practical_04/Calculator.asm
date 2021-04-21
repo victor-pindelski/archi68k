@@ -12,20 +12,26 @@ Vector_001      dc.l        Main
 
                 org         $500
 
-Main            move.l      #String1,a0
-                jsr         RemoveSpace
+Main            ;move.l      #String1,a0
+                ;jsr         RemoveSpace
 
-                move.l      #String2,a0
-                jsr         RemoveSpace2
+                ;move.l      #String2,a0
+                ;jsr         RemoveSpace2
 
-                move.l      #String3,a0
-                jsr         IsCharError
+                ;move.l      #String3,a0
+                ;jsr         IsCharError
+
+                ;move.l      #String4,a0
+                ;jsr         IsMaxError
+
+                ;move.l      #String5,a0
+                ;jsr         IsMaxError
 
                 move.l      #String4,a0
-                jsr         IsMaxError
+                jsr         Convert
 
                 move.l      #String5,a0
-                jsr         IsMaxError
+                jsr         Convert
 
                 illegal
 
@@ -142,6 +148,42 @@ IsMaxError      movem.l     a0/d0,-(a7)
                 bra         \smaller
 
 \quit           movem.l     (a7)+,a0/d0
+                rts
+
+; ===========================
+
+Atoui           movem.l     a0/d1,-(a7)
+                clr.l       d0
+
+\loop           move.b      (a0)+,d1
+                beq         \quit
+
+                sub.b       #'0',d1
+                mulu.w      #10,d1
+                add.l       d1,d0
+
+                bra         \loop
+
+\quit           movem.l     (a7)+,a0/d1
+                rts
+
+Convert         ; empty string
+                tst.b       (a0)
+                beq         \false
+
+                ; sets Z=1 when error
+                ; beq branches if Z=1
+                jsr         IsCharError
+                beq         \false
+
+                jsr         IsMaxError
+                beq         \false
+
+\true           or.b        #%00000100,ccr
+                jsr         Atoui
+                rts
+
+\false          and.b       #%11111011,ccr
                 rts
 
 ; ===========================
