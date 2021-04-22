@@ -2,9 +2,10 @@
 ; Vector Initialization
 ; ===========================
 
-                org         $4
+                org         $0
 
-Vector_001      dc.l        Main
+vector_000      dc.l        $ffb500
+vector_001      dc.l        Main
 
 ; ===========================
 ; Main Program
@@ -27,11 +28,19 @@ Main            ;move.l      #String1,a0
                 ;move.l      #String5,a0
                 ;jsr         IsMaxError
 
-                move.l      #String4,a0
-                jsr         Convert
+                ;move.l      #String4,a0
+                ;jsr         Convert
 
-                move.l      #String5,a0
-                jsr         Convert
+                ;move.l      #String5,a0
+                ;jsr         Convert
+
+                ;lea         sTest,a0
+                ;move.b      #24,d1
+                ;move.b      #20,d2
+                ;jsr         Print
+
+                move.l      #String1,a0
+                jsr         NextOp2
 
                 illegal
 
@@ -187,6 +196,71 @@ Convert         ; empty string
                 rts
 
 ; ===========================
+
+Print           movem.l     d0/d1/d2/a0,-(a7)
+
+\loop           move.b      (a0)+,d0
+                beq         \quit
+
+                jsr         PrintChar
+                add.b       #1,d1
+
+                bra         \loop
+
+\quit           movem.l     (a7)+,d0/d1/d2/a0
+                rts
+
+PrintChar       incbin      "PrintChar.bin"
+
+; ===========================
+
+NextOp          move.l     d0,-(a7)
+
+\loop           move.b      (a0)+,d0
+                beq         \quit
+
+                cmp.b       #'+',d0
+                beq         \quit
+
+                cmp.b       #'-',d0
+                beq         \quit
+
+                cmp.b       #'/',d0
+                beq         \quit
+
+                cmp.b       #'*',d0
+                beq         \quit
+
+                bra         \loop
+
+\notFound       move.l     (a7)+,d0
+                rts
+
+\quit           suba.w      #$1,a0
+                move.l     (a7)+,d0
+                rts
+
+NextOp2         tst.b       (a0)
+                beq         \quit
+
+                cmp.b       #'+',(a0)
+                beq         \quit
+
+                cmp.b       #'-',(a0)
+                beq         \quit
+
+                cmp.b       #'/',(a0)
+                beq         \quit
+
+                cmp.b       #'*',(a0)
+                beq         \quit
+
+                add.l       #$1,a0
+                bra         NextOp2
+
+\quit           rts
+
+; ===========================
 ; Data
 ; ===========================
 
@@ -195,3 +269,5 @@ String2         dc.b        "90+ 46   +   2",0
 String3         dc.b        "145b67",0
 String4         dc.b        "32766",0
 String5         dc.b        "32768",0
+
+sTest           dc.b        "Hello World",0
