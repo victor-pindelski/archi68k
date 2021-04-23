@@ -30,6 +30,8 @@ Main        move.l      #String1,a0
 Atoui       clr.l       d0
             movem.l     d1/a0,-(a7)
 
+            clr.l       d1
+
 \loop       move.b      (a0)+,d1
             beq         \quit
 
