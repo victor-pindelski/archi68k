@@ -39,8 +39,11 @@ Main            ;move.l      #String1,a0
                 ;move.b      #20,d2
                 ;jsr         Print
 
-                move.l      #String1,a0
-                jsr         NextOp2
+                ;move.l      #String1,a0
+                ;jsr         NextOp2
+
+                move.l      #String6,a0
+                jsr         GetNum
 
                 illegal
 
@@ -163,12 +166,13 @@ IsMaxError      movem.l     a0/d0,-(a7)
 
 Atoui           movem.l     a0/d1,-(a7)
                 clr.l       d0
+                clr.l       d1
 
 \loop           move.b      (a0)+,d1
                 beq         \quit
 
                 sub.b       #'0',d1
-                mulu.w      #10,d1
+                mulu.w      #10,d0
                 add.l       d1,d0
 
                 bra         \loop
@@ -188,8 +192,9 @@ Convert         ; empty string
                 jsr         IsMaxError
                 beq         \false
 
-\true           or.b        #%00000100,ccr
                 jsr         Atoui
+
+\true           or.b        #%00000100,ccr
                 rts
 
 \false          and.b       #%11111011,ccr
@@ -255,10 +260,37 @@ NextOp2         tst.b       (a0)
                 cmp.b       #'*',(a0)
                 beq         \quit
 
-                add.l       #$1,a0
+                addq.l      #1,a0
                 bra         NextOp2
 
 \quit           rts
+
+; ===========================
+
+GetNum          movem.l     d1/a1/a2,-(a7)
+
+                move.l      a0,a1
+
+                jsr         NextOp2
+                move.l      a0,a2
+                move.b      (a2),d1
+                move.b      #0,(a2)
+
+                move.l      a1,a0
+                jsr         Convert
+                beq         \true
+
+\false          and.b       #%11111011,ccr
+                move.b      d1,(a2)
+                bra         \quit
+
+\true           or.b        #%00000100,ccr
+                move.b      d1,(a2)
+                move.l      a2,a0
+
+\quit           movem.l     (a7)+,d1/a1/a2
+                rts
+
 
 ; ===========================
 ; Data
@@ -269,5 +301,6 @@ String2         dc.b        "90+ 46   +   2",0
 String3         dc.b        "145b67",0
 String4         dc.b        "32766",0
 String5         dc.b        "32768",0
+String6         dc.b        "1256+9876",0
 
 sTest           dc.b        "Hello World",0
