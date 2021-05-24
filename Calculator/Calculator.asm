@@ -101,7 +101,7 @@ IsCharError     movem.l      a0/d0,-(a7)
                 cmp.b       #'9',d0
                 bhi         \true
 
-                bra         \loop         
+                bra         \loop
 
 \true           or.b        #%00000100,ccr
                 bra         \quit
@@ -145,7 +145,7 @@ IsMaxError      movem.l     a0/d0,-(a7)
 
                 cmp.b       #'2',(a0)+
                 bhi         \greater
-                blo         \smaller                
+                blo         \smaller
 
                 cmp.b       #'7',(a0)+
                 bhi         \greater
@@ -336,10 +336,10 @@ GetExpr         movem.l     d1/d2/a0,-(a7)
 
 \false          and.b       #%11111011,ccr
                 bra         \quit
-           
+
 \true           move.l      d1,d0
                 or.b        #%00000100,ccr
-                
+
 \quit           movem.l     (a7)+,d1/d2/a0
                 rts
 
